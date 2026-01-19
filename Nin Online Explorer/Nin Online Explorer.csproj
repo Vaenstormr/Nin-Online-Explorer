@@ -1,29 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-
-
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net8.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
 		<ApplicationIcon>app.ico</ApplicationIcon>
-
 		<PublishSingleFile>true</PublishSingleFile>
-		<SelfContained>true</SelfContained>
 		<PublishReadyToRun>true</PublishReadyToRun>
 		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 	</PropertyGroup>
-
-
-
 	<ItemGroup>
-
-		<!-- asegura que el archivo .ico esté incluido en el proyecto -->
-
 		<Content Include="app.ico" />
-
 	</ItemGroup>
-
-
-
 </Project>

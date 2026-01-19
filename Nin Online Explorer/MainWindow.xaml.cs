@@ -26,7 +26,6 @@ namespace Nin_Online_Explorer
 
     public partial class MainWindow : Window
     {
-        // Engine Configuration - Tus constantes probadas
         private static readonly string Salt = "yC9*I^~0%d J4k0k4JhfDkwzpi^|of0~*W5I-r0u7T1IY4S^C6O3^RmV-H-B";
         private static readonly byte[] FixedBytes = { 66, 135, 99, 114 };
         private const int MaxParallelism = 4;
@@ -43,7 +42,6 @@ namespace Nin_Online_Explorer
 
             return await System.Threading.Tasks.Task.Run(() =>
             {
-                // Usamos PasswordDeriveBytes exactamente como en tu programa original
                 using (PasswordDeriveBytes pdb = new PasswordDeriveBytes(Salt, FixedBytes))
                 {
                     using (Aes aes = Aes.Create())
@@ -54,7 +52,6 @@ namespace Nin_Online_Explorer
 
                         using (MemoryStream ms = new MemoryStream())
                         {
-                            // Nota: Usamos CryptoStreamMode.Write para replicar tu lógica exacta
                             using (CryptoStream cs = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Write))
                             {
                                 cs.Write(input, 0, input.Length);
@@ -292,7 +289,8 @@ namespace Nin_Online_Explorer
                     {
                         await EncryptPngToNinAsync(openDialog.FileName, targetNinPath);
                         var data = await DecryptNinFileAsync(targetNinPath);
-                        await Dispatcher.InvokeAsync(() => {
+                        await Dispatcher.InvokeAsync(() =>
+                        {
                             ImagePreview.Source = ConvertBytesToImage(data);
                             MessageBox.Show("Replaced successfully.");
                         });
@@ -352,5 +350,21 @@ namespace Nin_Online_Explorer
             }
         }
         #endregion
+        private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+        {
+            try
+            {
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = e.Uri.AbsoluteUri,
+                    UseShellExecute = true
+                });
+                e.Handled = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Could not open the link: " + ex.Message);
+            }
+        }
     }
 }

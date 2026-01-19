@@ -6,7 +6,6 @@
         Title="Nin Online Explorer"
         Height="600" Width="1000"
         Background="#1E1E1E">
-
     <Window.Resources>
         <Style x:Key="ActionButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="#2D2D2D"/>
@@ -38,21 +37,18 @@
             </Setter>
         </Style>
     </Window.Resources>
-
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="300"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-
-        <!-- LEFT PANE: Select + Action Buttons + Tree -->
+        <!-- LEFT PANE-->
         <Grid Grid.Column="0" Margin="10">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>  <!-- Select Assets -->
-                <RowDefinition Height="Auto"/>  <!-- Action buttons -->
-                <RowDefinition Height="*"/>     <!-- TreeView -->
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-
             <Button x:Name="BtnSelectFolder" 
                     Grid.Row="0"
                     Content="Select Assets Folder" 
@@ -90,8 +86,7 @@
                     </Style>
                 </Button.Style>
             </Button>
-
-            <!-- ACTION BUTTONS (moved below Select Assets) -->
+            <!-- ACTION BUTTONS -->
             <UniformGrid Grid.Row="1" Columns="3" Rows="1" Margin="0,6,0,10" HorizontalAlignment="Stretch" VerticalAlignment="Top">
                 <Button x:Name="BtnExportPng" 
                         Content="Export" 
@@ -100,18 +95,15 @@
                         Click="BtnExportPng_Click"
                         Style="{StaticResource ActionButtonStyle}"
                         Margin="0,0,8,0" Foreground="#FFFF333C" BorderBrush="#FFFF333C"/>
-
                 <Button x:Name="BtnImportFromFile"
                         Content="Import"
                         Click="BtnImportFromFile_Click"
                         Style="{StaticResource ActionButtonStyle}" FontWeight="Bold" BorderBrush="#FFFF333C" Foreground="#FFFF333C" Margin="0,0,8,0"/>
-
                 <Button x:Name="BtnSmartBatchReplace" 
                         Content="Batch Replace" 
                         Click="BtnSmartBatchReplace_Click"
                         Style="{StaticResource ActionButtonStyle}" FontWeight="Bold" BorderBrush="#FFFF333C" Foreground="#FFFF333C"/>
             </UniformGrid>
-
             <TreeView x:Name="TreeFolderStructure" 
                       Grid.Row="2"
                       Background="#2D2D2D" 
@@ -164,19 +156,32 @@
                 </TreeView.Resources>
             </TreeView>
         </Grid>
-
-        <!-- RIGHT PANE: Preview -->
+        <!-- RIGHT PANE -->
         <Grid Grid.Column="1" Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-
             <Border Grid.Row="0" Background="#111111" CornerRadius="5">
                 <Image x:Name="ImagePreview" 
                        Stretch="Uniform" 
                        RenderOptions.BitmapScalingMode="NearestNeighbor"/>
             </Border>
+            <TextBlock Grid.Column="1" 
+           Foreground="#444444" 
+           FontSize="10" 
+           Margin="0,0,10,5"
+           VerticalAlignment="Bottom" 
+           HorizontalAlignment="Right">
+    <Hyperlink NavigateUri="https://github.com/Vaenstormr/Nin-Online-Explorer" 
+               RequestNavigate="Hyperlink_RequestNavigate"
+               Foreground="#00A2E8"
+               FontWeight="Bold"
+               TextDecorations="None">
+        <Run Text="Nin Online Explorer"/>
+    </Hyperlink>
+    <Run Text=" | by Vaenstormr"/>
+            </TextBlock>
         </Grid>
     </Grid>
 </Window>
