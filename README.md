@@ -1,23 +1,31 @@
-# Nin-Online-Explorer
+# Nin Online Explorer 🌀
 
-Basic program for Nin Online MMORPG, you can view .nin files, export & import them in real time.
+A tool designed for the **Nin Online** MMORPG.
+Manage, view, and modify `.nin` game assets in real-time.
 
-The program has a bunch of basic functions like selecting a folder and showing the entire tree of subfolders and .nin files.
-You can view in real time the .nin files, and you can export them (one by one or even multiple files).
-For import, the program haves 2 ways:
-  - Import: Classic 1:1 import, you select a .nin file to be replaced and import a .png that you want in that place.
-  - Batch Replace: This one is a bit tricky, you can import in batch but you must select a folder, not the files, and the files must have the same name as the .nin ones.
+---
 
+## ✨ Features
 
-## Build
+* **Real-time Preview:** View `.nin` files instantly within the application.
+* **Flexible Export:** Export assets individually or in bulk (Multiple selection).
+* **Smart Importing:**
+    * **Classic Import:** Replace a specific `.nin` file with a `.png` of your choice.
+    * **Batch Replace:** Update multiple files at once by selecting a source folder.
 
-To generate a standalone, single-file executable for your specific architecture, use the following commands:
+---
 
-### Windows x64 (64-bit)
-`dotnet publish -c Release -r win-x64`
+## 🚀 Getting Started
 
-### Windows x86 (32-bit)
-`dotnet publish -c Release -r win-x86`
+### Installation
+You don't need to install the program. Simply go to the **[Releases](https://github.com/Vaenstormr/Nin-Online-Explorer/releases)** section and download the version that fits your needs:
 
-The output will be located in:  
-`\bin\Release\net8.0-windows\[runtime]\publish\`
+* **Standalone:** Everything included. No requirements.
+* **Lightweight:** Requires [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0/runtime).
+
+### How to use Batch Replace
+> ⚠️ **Important:** To use Batch Replace correctly:
+> 1. Place your new `.png` files in a folder.
+> 2. Ensure the names of the `.png` files **match exactly** the names of the `.nin` files you want to replace.
+> 3. Select the folder in the app, and it will handle the rest.
+> *Note: Avoid duplicate filenames in different subfolders for better results.*
