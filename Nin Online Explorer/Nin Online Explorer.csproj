@@ -9,6 +9,12 @@
 		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 	</PropertyGroup>
 	<ItemGroup>
+	  <None Remove="background.png" />
+	</ItemGroup>
+	<ItemGroup>
 		<Content Include="app.ico" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Resource Include="background.png" />
 	</ItemGroup>
 </Project>

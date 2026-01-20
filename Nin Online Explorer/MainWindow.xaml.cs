@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media.Imaging;
 using System.Windows.Data;
-using System.Linq;
-using System.Collections.Generic;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace Nin_Online_Explorer
 {
@@ -35,7 +36,69 @@ namespace Nin_Online_Explorer
 
         public MainWindow() => InitializeComponent();
 
-        #region CRYPTO ENGINE - Legacy Implementation (Verified)
+        private Point _startPoint;
+
+        private void TreeFolderStructure_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed && _lastSelectedItem?.Tag != null)
+            {
+                string sourcePath = _lastSelectedItem.Tag.ToString();
+                if (sourcePath.EndsWith(".nin"))
+                {
+                    try
+                    {
+                        string tempFolder = Path.Combine(Path.GetTempPath(), "NinExplorer");
+                        Directory.CreateDirectory(tempFolder);
+                        string tempFileName = Path.GetFileNameWithoutExtension(sourcePath) + ".png";
+                        string tempFilePath = Path.Combine(tempFolder, tempFileName);
+
+                        var data = DecryptNinFileAsync(sourcePath).GetAwaiter().GetResult();
+                        File.WriteAllBytes(tempFilePath, data);
+
+                        DataObject dataObject = new DataObject(DataFormats.FileDrop, new string[] { tempFilePath });
+
+                        DragDrop.DoDragDrop(_lastSelectedItem, dataObject, DragDropEffects.Copy);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Error en Drag: " + ex.Message);
+                    }
+                }
+            }
+        }
+
+        private async void TreeFolderStructure_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                var hitTest = VisualTreeHelper.HitTest(TreeFolderStructure, e.GetPosition(TreeFolderStructure));
+                var targetItem = GetNearestContainer(hitTest.VisualHit);
+
+                if (targetItem?.Tag != null && files.Length > 0)
+                {
+                    string targetNinPath = targetItem.Tag.ToString();
+                    string sourcePngPath = files[0];
+
+                    if (sourcePngPath.ToLower().EndsWith(".png") && targetNinPath.ToLower().EndsWith(".nin"))
+                    {
+                        await EncryptPngToNinAsync(sourcePngPath, targetNinPath);
+                        await LoadPreviewAsync(targetNinPath);
+                        MessageBox.Show("File succesfully replaced");
+                    }
+                }
+            }
+        }
+
+        private TreeViewItem GetNearestContainer(DependencyObject element)
+        {
+            while (element != null && !(element is TreeViewItem))
+                element = VisualTreeHelper.GetParent(element);
+            return element as TreeViewItem;
+        }
+
+        #region CRYPTO ENGINE
         private async System.Threading.Tasks.Task<byte[]> DecryptNinFileAsync(string filePath)
         {
             byte[] input = await File.ReadAllBytesAsync(filePath).ConfigureAwait(false);
@@ -145,7 +208,7 @@ namespace Nin_Online_Explorer
             return node;
         }
 
-        private void TreeViewItem_OnSelected(object sender, RoutedEventArgs e)
+        private async void TreeViewItem_OnSelected(object sender, RoutedEventArgs e)
         {
             var currentItem = e.OriginalSource as TreeViewItem;
             if (currentItem == null) return;
@@ -163,9 +226,13 @@ namespace Nin_Online_Explorer
             _lastSelectedItem = currentItem;
 
             if (currentItem.Tag != null)
-                _ = LoadPreviewAsync(currentItem.Tag.ToString());
+            {
+                await LoadPreviewAsync(currentItem.Tag.ToString());
+            }
             else
+            {
                 ImagePreview.Source = null;
+            }
 
             e.Handled = true;
         }
