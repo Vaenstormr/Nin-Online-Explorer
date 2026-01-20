@@ -12,16 +12,7 @@ Manage, view, and modify `.nin` game assets in real-time.
 * **Smart Importing:**
     * **Classic Import:** Replace a specific `.nin` file with a `.png` of your choice.
     * **Batch Replace:** Update multiple files at once by selecting a source folder.
-
----
-
-## 🚀 Getting Started
-
-### Installation
-You don't need to install the program. Simply go to the **[Releases](https://github.com/Vaenstormr/Nin-Online-Explorer/releases)** section and download the version that fits your needs:
-
-* **Standalone:** Everything included. No requirements.
-* **Lightweight:** Requires [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0/runtime).
+*  **Drag & Drop:** You can select `.nin` files and drag them in or out to export/import them.
 
 ### How to use Batch Replace
 > ⚠️ **Important:** To use Batch Replace correctly:
