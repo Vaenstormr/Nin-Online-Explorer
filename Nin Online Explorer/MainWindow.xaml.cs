@@ -243,7 +243,7 @@ namespace Nin_Online_Explorer
             {
                 _selectedItems.Add(item);
                 item.Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(58, 58, 58));
-                item.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 162, 232));
+                item.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 51, 60));
             }
         }
 
