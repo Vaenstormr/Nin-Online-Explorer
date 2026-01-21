@@ -37,18 +37,20 @@
             </Setter>
         </Style>
     </Window.Resources>
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="300"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <!-- LEFT PANEL-->
+
         <Grid Grid.Column="0" Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
+
             <Button x:Name="BtnSelectFolder" 
                     Grid.Row="0"
                     Content="Select Assets Folder" 
@@ -57,7 +59,8 @@
                     Padding="10,8" 
                     Margin="0,0,0,10"
                     VerticalAlignment="Top"
-                    Click="BtnSelectFolder_Click" FontWeight="Bold">
+                    Click="BtnSelectFolder_Click" 
+                    FontWeight="Bold">
                 <Button.Style>
                     <Style TargetType="Button">
                         <Setter Property="Background" Value="#3D3D3D"/>
@@ -86,7 +89,7 @@
                     </Style>
                 </Button.Style>
             </Button>
-            <!-- ACTION BUTTONS -->
+
             <UniformGrid Grid.Row="1" Columns="3" Rows="1" Margin="0,6,0,10" HorizontalAlignment="Stretch" VerticalAlignment="Top">
                 <Button x:Name="BtnExportPng" 
                         Content="Export" 
@@ -94,28 +97,41 @@
                         FontWeight="Bold"
                         Click="BtnExportPng_Click"
                         Style="{StaticResource ActionButtonStyle}"
-                        Margin="0,0,8,0" Foreground="#FFFF333C" BorderBrush="#FFFF333C"/>
+                        Margin="0,0,8,0" 
+                        Foreground="#FFFF333C" 
+                        BorderBrush="#FFFF333C"/>
                 <Button x:Name="BtnImportFromFile"
                         Content="Import"
                         Click="BtnImportFromFile_Click"
-                        Style="{StaticResource ActionButtonStyle}" FontWeight="Bold" BorderBrush="#FFFF333C" Foreground="#FFFF333C" Margin="0,0,8,0"/>
+                        Style="{StaticResource ActionButtonStyle}" 
+                        FontWeight="Bold" 
+                        BorderBrush="#FFFF333C" 
+                        Foreground="#FFFF333C" 
+                        Margin="0,0,8,0"/>
                 <Button x:Name="BtnSmartBatchReplace" 
                         Content="Batch Replace" 
                         Click="BtnSmartBatchReplace_Click"
-                        Style="{StaticResource ActionButtonStyle}" FontWeight="Bold" BorderBrush="#FFFF333C" Foreground="#FFFF333C"/>
+                        Style="{StaticResource ActionButtonStyle}" 
+                        FontWeight="Bold" 
+                        BorderBrush="#FFFF333C" 
+                        Foreground="#FFFF333C"/>
             </UniformGrid>
+
             <TreeView x:Name="TreeFolderStructure" 
+                      Grid.Row="2"
                       AllowDrop="True"
                       Drop="TreeFolderStructure_Drop"
                       MouseMove="TreeFolderStructure_MouseMove"
-                      Grid.Row="2"
+                      PreviewMouseLeftButtonDown="TreeFolderStructure_PreviewMouseLeftButtonDown" 
                       Background="#2D2D2D" 
                       BorderThickness="0"
                       FontSize="14" 
                       FontFamily="Segoe UI"
                       TreeViewItem.Selected="TreeViewItem_OnSelected">
+
                 <TreeView.Resources>
                     <local:FileToIconConverter x:Key="FileIconConverter"/>
+
                     <Style TargetType="TreeViewItem">
                         <Setter Property="Foreground" Value="#AAAAAA"/>
                         <Setter Property="Background" Value="Transparent"/>
@@ -159,7 +175,7 @@
                 </TreeView.Resources>
             </TreeView>
         </Grid>
-        <!-- RIGHT PANEL -->
+
         <Grid Grid.Column="1" Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
@@ -169,11 +185,11 @@
             <Border Grid.Row="0" Background="#111111" CornerRadius="5">
                 <Grid>
                     <Image x:Name="BackgroundLogo"
-               Source="pack://application:,,,/background.png" 
-               Opacity="0.60" 
-               Stretch="Uniform"
-               VerticalAlignment="Center" 
-               HorizontalAlignment="Center">
+                           Source="pack://application:,,,/background.png" 
+                           Opacity="0.60" 
+                           Stretch="Uniform"
+                           VerticalAlignment="Center" 
+                           HorizontalAlignment="Center">
                         <Image.Style>
                             <Style TargetType="Image">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -187,25 +203,25 @@
                     </Image>
 
                     <Image x:Name="ImagePreview" 
-               Stretch="Uniform" 
-               RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                           Stretch="Uniform" 
+                           RenderOptions.BitmapScalingMode="NearestNeighbor"/>
                 </Grid>
             </Border>
 
             <TextBlock Grid.Row="1" 
-               Foreground="#444444" 
-               FontSize="10" 
-               Margin="0,5,10,0" 
-               VerticalAlignment="Center" 
-               HorizontalAlignment="Right">
-        <Hyperlink NavigateUri="https://github.com/Vaenstormr/Nin-Online-Explorer" 
-                   RequestNavigate="Hyperlink_RequestNavigate"
-                   Foreground="#FFFF333C"
-                   FontWeight="Bold"
-                   TextDecorations="None">
-            <Run Text="Nin Online Explorer"/>
-        </Hyperlink>
-        <Run Text=" | by Vaenstormr"/>
+                       Foreground="#444444" 
+                       FontSize="10" 
+                       Margin="0,5,10,0" 
+                       VerticalAlignment="Center" 
+                       HorizontalAlignment="Right">
+                <Hyperlink NavigateUri="https://github.com/Vaenstormr/Nin-Online-Explorer" 
+                           RequestNavigate="Hyperlink_RequestNavigate"
+                           Foreground="#FFFF333C"
+                           FontWeight="Bold"
+                           TextDecorations="None">
+                    <Run Text="Nin Online Explorer"/>
+                </Hyperlink>
+                <Run Text=" | by Vaenstormr"/>
             </TextBlock>
         </Grid>
     </Grid>

@@ -12,13 +12,38 @@ using System.Windows.Media.Imaging;
 
 namespace Nin_Online_Explorer
 {
+    /// <summary>
+    /// Implements natural sorting for files (e.g., "file2" comes before "file10").
+    /// </summary>
+    public class NaturalFileInfoComparer : IComparer<FileInfo>
+    {
+        [System.Runtime.InteropServices.DllImport("shlwapi.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+        private static extern int StrCmpLogicalW(string psz1, string psz2);
+
+        public int Compare(FileInfo x, FileInfo y) => StrCmpLogicalW(x.Name, y.Name);
+    }
+
+    /// <summary>
+    /// Implements natural sorting for directories.
+    /// </summary>
+    public class NaturalDirectoryInfoComparer : IComparer<DirectoryInfo>
+    {
+        [System.Runtime.InteropServices.DllImport("shlwapi.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+        private static extern int StrCmpLogicalW(string psz1, string psz2);
+
+        public int Compare(DirectoryInfo x, DirectoryInfo y) => StrCmpLogicalW(x.Name, y.Name);
+    }
+
+    /// <summary>
+    /// Converts a file path string into a representative icon (emoji).
+    /// </summary>
     public class FileToIconConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             string name = value?.ToString() ?? "";
             bool isFile = name.EndsWith(".nin", StringComparison.OrdinalIgnoreCase);
-            return isFile ? "📄" : "📁";
+            return isFile ? "📄" : "📁"; // Returns page for files, folder for directories
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
@@ -27,52 +52,102 @@ namespace Nin_Online_Explorer
 
     public partial class MainWindow : Window
     {
+        // Security constants for AES encryption/decryption
         private static readonly string Salt = "yC9*I^~0%d J4k0k4JhfDkwzpi^|of0~*W5I-r0u7T1IY4S^C6O3^RmV-H-B";
         private static readonly byte[] FixedBytes = { 66, 135, 99, 114 };
-        private const int MaxParallelism = 4;
+        private const int MaxParallelism = 4; // Limits simultaneous crypto tasks
 
+        // State variables for Drag and Drop and Multi-selection
+        private Point _startPoint;
+        private TreeViewItem _dragSourceItem;
+        private bool _canStartDrag = false;
         private List<TreeViewItem> _selectedItems = new List<TreeViewItem>();
         private TreeViewItem _lastSelectedItem = null;
 
         public MainWindow() => InitializeComponent();
 
-        private Point _startPoint;
-
-        private void TreeFolderStructure_MouseMove(object sender, MouseEventArgs e)
+        #region DRAG AND DROP LOGIC
+        /// <summary>
+        /// Detects the start of a drag operation.
+        /// </summary>
+        private void TreeFolderStructure_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed && _lastSelectedItem?.Tag != null)
+            _startPoint = e.GetPosition(TreeFolderStructure);
+            _canStartDrag = false;
+
+            var hitTest = VisualTreeHelper.HitTest(TreeFolderStructure, _startPoint);
+            if (hitTest != null)
             {
-                string sourcePath = _lastSelectedItem.Tag.ToString();
-                if (sourcePath.EndsWith(".nin"))
+                _dragSourceItem = GetNearestContainer(hitTest.VisualHit);
+                // Allow dragging only if the item is a .nin file
+                if (_dragSourceItem?.Tag != null && _dragSourceItem.Tag.ToString().EndsWith(".nin", StringComparison.OrdinalIgnoreCase))
                 {
-                    try
-                    {
-                        string tempFolder = Path.Combine(Path.GetTempPath(), "NinExplorer");
-                        Directory.CreateDirectory(tempFolder);
-                        string tempFileName = Path.GetFileNameWithoutExtension(sourcePath) + ".png";
-                        string tempFilePath = Path.Combine(tempFolder, tempFileName);
-
-                        var data = DecryptNinFileAsync(sourcePath).GetAwaiter().GetResult();
-                        File.WriteAllBytes(tempFilePath, data);
-
-                        DataObject dataObject = new DataObject(DataFormats.FileDrop, new string[] { tempFilePath });
-
-                        DragDrop.DoDragDrop(_lastSelectedItem, dataObject, DragDropEffects.Copy);
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine("Error en Drag: " + ex.Message);
-                    }
+                    _canStartDrag = true;
                 }
             }
         }
 
+        /// <summary>
+        /// Executes the DragDrop effect if the mouse moves beyond the minimum threshold.
+        /// </summary>
+        private void TreeFolderStructure_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed && _canStartDrag && _dragSourceItem != null)
+            {
+                Point mousePos = e.GetPosition(null);
+                Vector diff = _startPoint - mousePos;
+
+                if (Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance ||
+                    Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance)
+                {
+                    ExecuteDragDrop(_dragSourceItem);
+                    _dragSourceItem = null;
+                    _canStartDrag = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Prepares the file for external drag-and-drop by decrypting it to a temp PNG.
+        /// </summary>
+        private void ExecuteDragDrop(TreeViewItem sourceItem)
+        {
+            try
+            {
+                if (sourceItem?.Tag == null) return;
+                string sourcePath = sourceItem.Tag.ToString();
+                if (!sourcePath.EndsWith(".nin", StringComparison.OrdinalIgnoreCase)) return;
+
+                string fileName = Path.GetFileName(sourcePath);
+                string nameOnly = fileName.Length > 4 ? fileName.Substring(0, fileName.Length - 4) : fileName;
+
+                // Create a unique temporary directory
+                string tempFolder = Path.Combine(Path.GetTempPath(), "NinExplorer", Guid.NewGuid().ToString());
+                Directory.CreateDirectory(tempFolder);
+                string tempFilePath = Path.Combine(tempFolder, nameOnly + ".png");
+
+                var data = DecryptNinFileSync(sourcePath);
+                if (data != null)
+                {
+                    File.WriteAllBytes(tempFilePath, data);
+                    DataObject dataObject = new DataObject(DataFormats.FileDrop, new string[] { tempFilePath });
+                    DragDrop.DoDragDrop(sourceItem, dataObject, DragDropEffects.Copy);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error on Drag: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Handles dropping a PNG file onto a .nin entry to replace it.
+        /// </summary>
         private async void TreeFolderStructure_Drop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-
                 var hitTest = VisualTreeHelper.HitTest(TreeFolderStructure, e.GetPosition(TreeFolderStructure));
                 var targetItem = GetNearestContainer(hitTest.VisualHit);
 
@@ -85,78 +160,96 @@ namespace Nin_Online_Explorer
                     {
                         await EncryptPngToNinAsync(sourcePngPath, targetNinPath);
                         await LoadPreviewAsync(targetNinPath);
-                        MessageBox.Show("File succesfully replaced");
+                        MessageBox.Show("File successfully replaced");
                     }
                 }
             }
         }
-
-        private TreeViewItem GetNearestContainer(DependencyObject element)
-        {
-            while (element != null && !(element is TreeViewItem))
-                element = VisualTreeHelper.GetParent(element);
-            return element as TreeViewItem;
-        }
+        #endregion
 
         #region CRYPTO ENGINE
+        /// <summary>
+        /// Decrypts a .nin file synchronously using AES-256.
+        /// </summary>
+        private byte[] DecryptNinFileSync(string filePath)
+        {
+            byte[] input = File.ReadAllBytes(filePath);
+            using (PasswordDeriveBytes pdb = new PasswordDeriveBytes(Salt, FixedBytes))
+            using (Aes aes = Aes.Create())
+            {
+                aes.KeySize = 256;
+                aes.Key = pdb.GetBytes(32);
+                aes.IV = pdb.GetBytes(16);
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (CryptoStream cs = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Write))
+                    {
+                        cs.Write(input, 0, input.Length);
+                        cs.FlushFinalBlock();
+                    }
+                    return ms.ToArray();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Decrypts a .nin file asynchronously.
+        /// </summary>
         private async System.Threading.Tasks.Task<byte[]> DecryptNinFileAsync(string filePath)
         {
             byte[] input = await File.ReadAllBytesAsync(filePath).ConfigureAwait(false);
-
             return await System.Threading.Tasks.Task.Run(() =>
             {
                 using (PasswordDeriveBytes pdb = new PasswordDeriveBytes(Salt, FixedBytes))
+                using (Aes aes = Aes.Create())
                 {
-                    using (Aes aes = Aes.Create())
+                    aes.KeySize = 256;
+                    aes.Key = pdb.GetBytes(32);
+                    aes.IV = pdb.GetBytes(16);
+                    using (MemoryStream ms = new MemoryStream())
                     {
-                        aes.KeySize = 256;
-                        aes.Key = pdb.GetBytes(32);
-                        aes.IV = pdb.GetBytes(16);
-
-                        using (MemoryStream ms = new MemoryStream())
+                        using (CryptoStream cs = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Write))
                         {
-                            using (CryptoStream cs = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Write))
-                            {
-                                cs.Write(input, 0, input.Length);
-                                cs.FlushFinalBlock();
-                            }
-                            return ms.ToArray();
+                            cs.Write(input, 0, input.Length);
+                            cs.FlushFinalBlock();
                         }
+                        return ms.ToArray();
                     }
                 }
             });
         }
 
+        /// <summary>
+        /// Encrypts a PNG file into the .nin format.
+        /// </summary>
         private async System.Threading.Tasks.Task EncryptPngToNinAsync(string source, string dest)
         {
             byte[] input = await File.ReadAllBytesAsync(source).ConfigureAwait(false);
-
             byte[] encrypted = await System.Threading.Tasks.Task.Run(() =>
             {
                 using (PasswordDeriveBytes pdb = new PasswordDeriveBytes(Salt, FixedBytes))
+                using (Aes aes = Aes.Create())
                 {
-                    using (Aes aes = Aes.Create())
+                    aes.KeySize = 256;
+                    aes.Key = pdb.GetBytes(32);
+                    aes.IV = pdb.GetBytes(16);
+                    using (MemoryStream ms = new MemoryStream())
                     {
-                        aes.KeySize = 256;
-                        aes.Key = pdb.GetBytes(32);
-                        aes.IV = pdb.GetBytes(16);
-
-                        using (MemoryStream ms = new MemoryStream())
+                        using (CryptoStream cs = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write))
                         {
-                            using (CryptoStream cs = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write))
-                            {
-                                cs.Write(input, 0, input.Length);
-                                cs.FlushFinalBlock();
-                            }
-                            return ms.ToArray();
+                            cs.Write(input, 0, input.Length);
+                            cs.FlushFinalBlock();
                         }
+                        return ms.ToArray();
                     }
                 }
             });
-
             await File.WriteAllBytesAsync(dest, encrypted).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Converts raw decrypted bytes into a BitmapImage for the UI.
+        /// </summary>
         public BitmapImage ConvertBytesToImage(byte[] imageBytes)
         {
             if (imageBytes == null || imageBytes.Length == 0) return null;
@@ -168,14 +261,17 @@ namespace Nin_Online_Explorer
                 bitmap.CacheOption = BitmapCacheOption.OnLoad;
                 bitmap.StreamSource = ms;
                 bitmap.EndInit();
-                bitmap.Freeze();
+                bitmap.Freeze(); // Required for cross-thread access
                 return bitmap;
             }
             catch { return null; }
         }
         #endregion
 
-        #region TREE NAVIGATION & SELECTION (Logic maintained)
+        #region TREE NAVIGATION
+        /// <summary>
+        /// Opens a folder dialog and populates the TreeView with folders and .nin files.
+        /// </summary>
         private void BtnSelectFolder_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new Microsoft.Win32.OpenFolderDialog();
@@ -186,33 +282,67 @@ namespace Nin_Online_Explorer
                 _lastSelectedItem = null;
                 var dirInfo = new DirectoryInfo(dialog.FolderName);
 
-                foreach (var dir in dirInfo.GetDirectories().OrderBy(d => d.Name))
+                // Add Subdirectories
+                var dirs = dirInfo.GetDirectories().ToList();
+                dirs.Sort(new NaturalDirectoryInfoComparer());
+                foreach (var dir in dirs)
                     TreeFolderStructure.Items.Add(CreateTreeItem(dir));
 
-                foreach (var file in dirInfo.GetFiles("*.nin").OrderBy(f => f.Name))
+                // Add Files in root
+                var files = dirInfo.GetFiles("*.nin").ToList();
+                files.Sort(new NaturalFileInfoComparer());
+                foreach (var file in files)
                     TreeFolderStructure.Items.Add(new TreeViewItem { Header = file.Name, Tag = file.FullName });
             }
         }
 
+        /// <summary>
+        /// Recursively creates TreeView nodes for directory structures.
+        /// </summary>
         private TreeViewItem CreateTreeItem(DirectoryInfo directoryInfo)
         {
             var node = new TreeViewItem { Header = directoryInfo.Name, IsExpanded = false, Tag = null };
             try
             {
-                foreach (var dir in directoryInfo.GetDirectories().OrderBy(d => d.Name))
+                var dirs = directoryInfo.GetDirectories().ToList();
+                dirs.Sort(new NaturalDirectoryInfoComparer());
+                foreach (var dir in dirs)
                     node.Items.Add(CreateTreeItem(dir));
-                foreach (var file in directoryInfo.GetFiles("*.nin").OrderBy(f => f.Name))
+
+                var files = directoryInfo.GetFiles("*.nin").ToList();
+                files.Sort(new NaturalFileInfoComparer());
+                foreach (var file in files)
                     node.Items.Add(new TreeViewItem { Header = file.Name, Tag = file.FullName });
             }
-            catch (UnauthorizedAccessException) { }
+            catch (UnauthorizedAccessException) { /* Ignore folders without permission */ }
             return node;
         }
 
+        /// <summary>
+        /// Finds the TreeViewItem parent for a given visual element (used in hit testing).
+        /// </summary>
+        private TreeViewItem GetNearestContainer(DependencyObject element)
+        {
+            while (element != null)
+            {
+                if (element is TreeViewItem tvi) return tvi;
+                if (element is TreeView) return null;
+                element = VisualTreeHelper.GetParent(element);
+            }
+            return null;
+        }
+        #endregion
+
+        #region SELECTION & PREVIEW
+        /// <summary>
+        /// Handles custom selection logic (Shift/Ctrl) and triggers image preview.
+        /// </summary>
         private async void TreeViewItem_OnSelected(object sender, RoutedEventArgs e)
         {
             var currentItem = e.OriginalSource as TreeViewItem;
             if (currentItem == null) return;
 
+            // Handle Multi-selection modifiers
             if ((Keyboard.Modifiers & ModifierKeys.Shift) > 0 && _lastSelectedItem != null)
                 PerformShiftSelection(_lastSelectedItem, currentItem);
             else if ((Keyboard.Modifiers & ModifierKeys.Control) > 0)
@@ -225,14 +355,11 @@ namespace Nin_Online_Explorer
 
             _lastSelectedItem = currentItem;
 
+            // Update Preview
             if (currentItem.Tag != null)
-            {
                 await LoadPreviewAsync(currentItem.Tag.ToString());
-            }
             else
-            {
                 ImagePreview.Source = null;
-            }
 
             e.Handled = true;
         }
@@ -242,8 +369,8 @@ namespace Nin_Online_Explorer
             if (!_selectedItems.Contains(item))
             {
                 _selectedItems.Add(item);
-                item.Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(58, 58, 58));
-                item.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 51, 60));
+                item.Background = new SolidColorBrush(Color.FromRgb(58, 58, 58));
+                item.Foreground = new SolidColorBrush(Color.FromRgb(255, 51, 60));
             }
         }
 
@@ -251,13 +378,16 @@ namespace Nin_Online_Explorer
         {
             foreach (var item in _selectedItems)
             {
-                item.Background = System.Windows.Media.Brushes.Transparent;
-                item.ClearValue(System.Windows.Controls.Control.ForegroundProperty);
+                item.Background = Brushes.Transparent;
+                item.ClearValue(Control.ForegroundProperty);
                 item.IsSelected = false;
             }
             _selectedItems.Clear();
         }
 
+        /// <summary>
+        /// Selects a range of items between two points in the TreeView.
+        /// </summary>
         private void PerformShiftSelection(TreeViewItem start, TreeViewItem end)
         {
             var allItems = GetVisibleItems(TreeFolderStructure);
@@ -269,6 +399,9 @@ namespace Nin_Online_Explorer
                 ToggleSelection(allItems[i]);
         }
 
+        /// <summary>
+        /// Flattens the visible TreeView hierarchy into a list for index-based selection.
+        /// </summary>
         private List<TreeViewItem> GetVisibleItems(ItemsControl container)
         {
             var list = new List<TreeViewItem>();
@@ -283,7 +416,6 @@ namespace Nin_Online_Explorer
             }
             return list;
         }
-        #endregion
 
         private async System.Threading.Tasks.Task LoadPreviewAsync(string filePath)
         {
@@ -295,9 +427,12 @@ namespace Nin_Online_Explorer
             }
             catch { await Dispatcher.InvokeAsync(() => ImagePreview.Source = null); }
         }
+        #endregion
 
         #region EXPORT & REPLACE OPERATIONS
-
+        /// <summary>
+        /// Exports selected .nin files back to .png format.
+        /// </summary>
         private async void BtnExportPng_Click(object sender, RoutedEventArgs e)
         {
             var filesToExport = _selectedItems.Where(i => i.Tag != null).Select(i => i.Tag.ToString()).ToList();
@@ -342,6 +477,9 @@ namespace Nin_Online_Explorer
             }
         }
 
+        /// <summary>
+        /// Replaces the currently selected .nin file with a chosen PNG.
+        /// </summary>
         private void BtnReplaceWithPng_Click(object sender, RoutedEventArgs e)
         {
             if (_lastSelectedItem?.Tag == null) return;
@@ -367,6 +505,9 @@ namespace Nin_Online_Explorer
             }
         }
 
+        /// <summary>
+        /// Batch replaces selected .nin files if a PNG with the same name exists in a target folder.
+        /// </summary>
         private async void BtnSmartBatchReplace_Click(object sender, RoutedEventArgs e)
         {
             var selectedNinFiles = _selectedItems.Where(i => i.Tag != null && i.Tag.ToString().EndsWith(".nin")).ToList();
@@ -396,6 +537,9 @@ namespace Nin_Online_Explorer
             }
         }
 
+        /// <summary>
+        /// Replaces all selected .nin files with a single selected PNG file.
+        /// </summary>
         private async void BtnImportFromFile_Click(object sender, RoutedEventArgs e)
         {
             var selectedNinFiles = _selectedItems.Where(i => i.Tag != null && i.Tag.ToString().EndsWith(".nin")).ToList();
@@ -417,6 +561,10 @@ namespace Nin_Online_Explorer
             }
         }
         #endregion
+
+        /// <summary>
+        /// Opens external URLs in the default system browser.
+        /// </summary>
         private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
         {
             try
@@ -428,10 +576,13 @@ namespace Nin_Online_Explorer
                 });
                 e.Handled = true;
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Could not open the link: " + ex.Message);
-            }
+            catch (Exception ex) { MessageBox.Show("Could not open the link: " + ex.Message); }
         }
     }
 }
+
+/// <summary>
+/// Hi there, this is Vaenstormr.
+/// Since I'm not a programmer and I mostly used AI to help me write this, please forgive any mistakes or inefficiencies.
+/// I just wanted to say that you are free to use and modify this code as you see fit, and if you release it you keep it free for everyone, respecting the original license.
+/// </summary>
