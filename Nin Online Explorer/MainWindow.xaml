@@ -4,13 +4,18 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:Nin_Online_Explorer"
         Title="Nin Online Explorer"
-        Height="600" Width="1000"
+        Height="600"
+        Width="1000"
         Background="#1E1E1E">
     <Window.Resources>
-        <Style x:Key="ActionButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#2D2D2D"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Height" Value="50"/>
+        <Style x:Key="ActionButtonStyle"
+               TargetType="Button">
+            <Setter Property="Background"
+                    Value="#2D2D2D" />
+            <Setter Property="BorderThickness"
+                    Value="1" />
+            <Setter Property="Height"
+                    Value="40" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -20,16 +25,25 @@
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="3"
                                 Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ActionBorder" Property="Background" Value="#3D3D3D"/>
-                                <Setter Property="Foreground" Value="#FFFFFF"/>
-                                <Setter Property="Cursor" Value="Hand"/>
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+                                <Setter TargetName="ActionBorder"
+                                        Property="Background"
+                                        Value="#3D3D3D" />
+                                <Setter Property="Foreground"
+                                        Value="#FFFFFF" />
+                                <Setter Property="Cursor"
+                                        Value="Hand" />
                             </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ActionBorder" Property="Background" Value="#1A1A1A"/>
+                            <Trigger Property="IsPressed"
+                                     Value="True">
+                                <Setter TargetName="ActionBorder"
+                                        Property="Background"
+                                        Value="#1A1A1A" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -37,50 +51,57 @@
             </Setter>
         </Style>
     </Window.Resources>
-
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="300" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-
-        <Grid Grid.Column="0" Margin="10">
+        <Grid Grid.Column="0"
+              Margin="10">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-
-            <Button x:Name="BtnSelectFolder" 
+            <Button x:Name="BtnSelectFolder"
                     Grid.Row="0"
-                    Content="Select Assets Folder" 
-                    Foreground="White" 
+                    Content="Select Assets Folder"
+                    Foreground="White"
                     FontSize="14"
-                    Padding="10,8" 
+                    Padding="10,6"
                     Margin="0,0,0,10"
                     VerticalAlignment="Top"
-                    Click="BtnSelectFolder_Click" 
+                    Click="BtnSelectFolder_Click"
                     FontWeight="Bold">
                 <Button.Style>
                     <Style TargetType="Button">
-                        <Setter Property="Background" Value="#3D3D3D"/>
-                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Background"
+                                Value="#3D3D3D" />
+                        <Setter Property="BorderThickness"
+                                Value="0" />
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="border" 
-                                            Background="{TemplateBinding Background}" 
-                                            CornerRadius="0" 
+                                    <Border x:Name="border"
+                                            Background="{TemplateBinding Background}"
+                                            CornerRadius="2"
                                             Padding="{TemplateBinding Padding}"
                                             SnapsToDevicePixels="True">
-                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center" />
                                     </Border>
                                     <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="border" Property="Background" Value="#4D4D4D"/>
+                                        <Trigger Property="IsMouseOver"
+                                                 Value="True">
+                                            <Setter TargetName="border"
+                                                    Property="Background"
+                                                    Value="#4D4D4D" />
                                         </Trigger>
-                                        <Trigger Property="IsPressed" Value="True">
-                                            <Setter TargetName="border" Property="Background" Value="#1A1A1A"/>
+                                        <Trigger Property="IsPressed"
+                                                 Value="True">
+                                            <Setter TargetName="border"
+                                                    Property="Background"
+                                                    Value="#1A1A1A" />
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -89,83 +110,135 @@
                     </Style>
                 </Button.Style>
             </Button>
-
-            <UniformGrid Grid.Row="1" Columns="3" Rows="1" Margin="0,6,0,10" HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                <Button x:Name="BtnExportPng" 
-                        Content="Export" 
+            <UniformGrid Grid.Row="1"
+                         Columns="3"
+                         Rows="1"
+                         Margin="0,0,0,10">
+                <Button x:Name="BtnExportPng"
+                        Content="Export"
                         Padding="20,10"
                         FontWeight="Bold"
                         Click="BtnExportPng_Click"
                         Style="{StaticResource ActionButtonStyle}"
-                        Margin="0,0,8,0" 
-                        Foreground="#FFFF333C" 
-                        BorderBrush="#FFFF333C"/>
+                        Margin="0,0,5,0"
+                        Foreground="#FFFF333C"
+                        BorderBrush="#FFFF333C" />
                 <Button x:Name="BtnImportFromFile"
                         Content="Import"
+                        Padding="20,10"
+                        FontWeight="Bold"
                         Click="BtnImportFromFile_Click"
-                        Style="{StaticResource ActionButtonStyle}" 
-                        FontWeight="Bold" 
-                        BorderBrush="#FFFF333C" 
-                        Foreground="#FFFF333C" 
-                        Margin="0,0,8,0"/>
-                <Button x:Name="BtnSmartBatchReplace" 
-                        Content="Batch Replace" 
+                        Style="{StaticResource ActionButtonStyle}"
+                        Margin="0,0,5,0"
+                        BorderBrush="#FFFF333C"
+                        Foreground="#FFFF333C" />
+                <Button x:Name="BtnSmartBatchReplace"
+                        Content="Batch Replace"
+                        FontWeight="Bold"
                         Click="BtnSmartBatchReplace_Click"
-                        Style="{StaticResource ActionButtonStyle}" 
-                        FontWeight="Bold" 
-                        BorderBrush="#FFFF333C" 
-                        Foreground="#FFFF333C"/>
+                        Style="{StaticResource ActionButtonStyle}"
+                        BorderBrush="#FFFF333C"
+                        Foreground="#FFFF333C" />
             </UniformGrid>
-
-            <TreeView x:Name="TreeFolderStructure" 
+            <Border Grid.Row="2"
+                    Background="#252525"
+                    BorderBrush="#333333"
+                    BorderThickness="1"
+                    CornerRadius="3"
+                    Padding="10"
+                    Margin="0,0,0,333">
+                <StackPanel>
+                    <DockPanel LastChildFill="True"
+                               Margin="0,0,0,5">
+                        <TextBlock Text="Transparency: "
+                                   Foreground="#AAAAAA"
+                                   VerticalAlignment="Center"
+                                   FontSize="11" />
+                        <TextBlock Text="{Binding ElementName=SliderOpacity, Path=Value, StringFormat={}{0}%}"
+                                   Foreground="#FFFF333C"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Right" />
+                    </DockPanel>
+                    <Slider x:Name="SliderOpacity"
+                            Minimum="0"
+                            Maximum="100"
+                            Value="100"
+                            TickFrequency="5"
+                            IsSnapToTickEnabled="True"
+                            Margin="0,0,0,10"
+                            Height="20" />
+                    <Button x:Name="BtnApplyOpacity"
+                            Content="Apply Transparency"
+                            Click="BtnApplyOpacity_Click"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Foreground="#FFFF333C"
+                            BorderBrush="#FFFF333C"
+                            Height="30"
+                            FontSize="11"
+                            FontWeight="Bold" />
+                </StackPanel>
+            </Border>
+            <TreeView x:Name="TreeFolderStructure"
                       Grid.Row="2"
                       AllowDrop="True"
                       Drop="TreeFolderStructure_Drop"
                       MouseMove="TreeFolderStructure_MouseMove"
-                      PreviewMouseLeftButtonDown="TreeFolderStructure_PreviewMouseLeftButtonDown" 
-                      Background="#2D2D2D" 
+                      PreviewMouseLeftButtonDown="TreeFolderStructure_PreviewMouseLeftButtonDown"
+                      Background="#2D2D2D"
                       BorderThickness="0"
-                      FontSize="14" 
+                      FontSize="14"
                       FontFamily="Segoe UI"
-                      TreeViewItem.Selected="TreeViewItem_OnSelected">
-
+                      TreeViewItem.Selected="TreeViewItem_OnSelected"
+                      Margin="0,110,0,0">
                 <TreeView.Resources>
-                    <local:FileToIconConverter x:Key="FileIconConverter"/>
-
+                    <local:FileToIconConverter x:Key="FileIconConverter" />
                     <Style TargetType="TreeViewItem">
-                        <Setter Property="Foreground" Value="#AAAAAA"/>
-                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Foreground"
+                                Value="#AAAAAA" />
+                        <Setter Property="Background"
+                                Value="Transparent" />
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="TreeViewItem">
                                     <StackPanel>
-                                        <Border x:Name="SelectionBorder" 
-                                                Background="{TemplateBinding Background}" 
+                                        <Border x:Name="SelectionBorder"
+                                                Background="{TemplateBinding Background}"
                                                 Padding="5,2"
                                                 SnapsToDevicePixels="True">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock x:Name="TypeIcon" 
-                                                           Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Header, Converter={StaticResource FileIconConverter}}" 
-                                                           Margin="0,0,8,0" 
-                                                           VerticalAlignment="Center"/>
-                                                <ContentPresenter x:Name="PART_Header" 
-                                                                  ContentSource="Header" 
-                                                                  VerticalAlignment="Center"/>
+                                                <TextBlock x:Name="TypeIcon"
+                                                           Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Header, Converter={StaticResource FileIconConverter}}"
+                                                           Margin="0,0,8,0"
+                                                           VerticalAlignment="Center" />
+                                                <ContentPresenter x:Name="PART_Header"
+                                                                  ContentSource="Header"
+                                                                  VerticalAlignment="Center" />
                                             </StackPanel>
                                         </Border>
-                                        <ItemsPresenter x:Name="ItemsHost" Margin="15,0,0,0"/>
+                                        <ItemsPresenter x:Name="ItemsHost"
+                                                        Margin="15,0,0,0" />
                                     </StackPanel>
                                     <ControlTemplate.Triggers>
-                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Header, Converter={StaticResource FileIconConverter}}" Value="📁">
-                                            <Setter Property="FontWeight" Value="Bold"/>
-                                            <Setter Property="Foreground" Value="White"/>
+                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Header, Converter={StaticResource FileIconConverter}}"
+                                                     Value="📁">
+                                            <Setter Property="FontWeight"
+                                                    Value="Bold" />
+                                            <Setter Property="Foreground"
+                                                    Value="White" />
                                         </DataTrigger>
-                                        <Trigger Property="IsSelected" Value="True">
-                                            <Setter TargetName="SelectionBorder" Property="Background" Value="#3A3A3A"/>
-                                            <Setter Property="Foreground" Value="#00A2E8"/>
+                                        <Trigger Property="IsSelected"
+                                                 Value="True">
+                                            <Setter TargetName="SelectionBorder"
+                                                    Property="Background"
+                                                    Value="#3A3A3A" />
+                                            <Setter Property="Foreground"
+                                                    Value="#00A2E8" />
                                         </Trigger>
-                                        <Trigger Property="IsExpanded" Value="False">
-                                            <Setter TargetName="ItemsHost" Property="Visibility" Value="Collapsed"/>
+                                        <Trigger Property="IsExpanded"
+                                                 Value="False">
+                                            <Setter TargetName="ItemsHost"
+                                                    Property="Visibility"
+                                                    Value="Collapsed" />
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -175,54 +248,55 @@
                 </TreeView.Resources>
             </TreeView>
         </Grid>
-
-        <Grid Grid.Column="1" Margin="10">
+        <Grid Grid.Column="1"
+              Margin="10">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-
-            <Border Grid.Row="0" Background="#111111" CornerRadius="5">
+            <Border Grid.Row="0"
+                    Background="#111111"
+                    CornerRadius="5">
                 <Grid>
                     <Image x:Name="BackgroundLogo"
-                           Source="pack://application:,,,/background.png" 
-                           Opacity="0.60" 
+                           Source="pack://application:,,,/background.png"
+                           Opacity="0.60"
                            Stretch="Uniform"
-                           VerticalAlignment="Center" 
+                           VerticalAlignment="Center"
                            HorizontalAlignment="Center">
                         <Image.Style>
                             <Style TargetType="Image">
-                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Setter Property="Visibility"
+                                        Value="Collapsed" />
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding ElementName=ImagePreview, Path=Source}" Value="{x:Null}">
-                                        <Setter Property="Visibility" Value="Visible"/>
+                                    <DataTrigger Binding="{Binding ElementName=ImagePreview, Path=Source}"
+                                                 Value="{x:Null}">
+                                        <Setter Property="Visibility"
+                                                Value="Visible" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Image.Style>
                     </Image>
-
-                    <Image x:Name="ImagePreview" 
-                           Stretch="Uniform" 
-                           RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                    <Image x:Name="ImagePreview"
+                           Stretch="Uniform"
+                           RenderOptions.BitmapScalingMode="NearestNeighbor" />
                 </Grid>
             </Border>
-
-            <TextBlock Grid.Row="1" 
-                       Foreground="#444444" 
-                       FontSize="10" 
-                       Margin="0,5,10,0" 
-                       VerticalAlignment="Center" 
+            <TextBlock Grid.Row="1"
+                       Foreground="#444444"
+                       FontSize="10"
+                       Margin="0,5,10,0"
+                       VerticalAlignment="Center"
                        HorizontalAlignment="Right">
-                <Hyperlink NavigateUri="https://github.com/Vaenstormr/Nin-Online-Explorer" 
+                <Hyperlink NavigateUri="https://github.com/Vaenstormr/Nin-Online-Explorer"
                            RequestNavigate="Hyperlink_RequestNavigate"
                            Foreground="#FFFF333C"
                            FontWeight="Bold"
                            TextDecorations="None">
-                    <Run Text="Nin Online Explorer"/>
+                    <Run Text="Nin Online Explorer" />
                 </Hyperlink>
-                <Run Text=" | by Vaenstormr"/>
-            </TextBlock>
+                <Run Text=" | by Vaenstormr" /></TextBlock>
         </Grid>
     </Grid>
 </Window>
