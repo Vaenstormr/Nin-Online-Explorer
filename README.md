@@ -14,6 +14,8 @@ Manage, view, and modify `.nin` game assets in real-time.
     * **Batch Replace:** Update multiple files at once by selecting a source folder.
 *  **Drag & Drop:** You can select `.nin` files and drag them in or out to export/import them.
 
+<img width="986" height="595" alt="image" src="https://github.com/user-attachments/assets/8810ff3c-c4a0-4932-8ada-d3a4f11bea61" />
+
 ### How to use Batch Replace
 > ⚠️ **Important:** To use Batch Replace correctly:
 > 1. Place your new `.png` files in a folder.
